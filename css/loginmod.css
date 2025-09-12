@@ -1,0 +1,81 @@
+/* 登录\注册\忘记密码 页面特定样式 */
+/* 公共样式 */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%; /* 确保全屏高度 */
+    font-family: Arial, sans-serif;
+    overflow: hidden; /* 防止出现滚动条 */
+}
+
+.container {
+    display: flex;
+    height: 100%; /* 全屏高度，确保左右区域填满 */
+    overflow: hidden;
+}
+
+.background {
+    flex: 1;
+    height: 100vh; /* 背景区域高度 */
+    background-image: url('/static/img/background_login.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.form-container {
+    width: 400px;
+    padding: 30px;
+    background-color: rgba(255, 255, 255, 0.95); /* 半透明背景 */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    margin: auto 20px;
+    text-align: center;
+}
+
+.logo {
+    width: 100px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+h2 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.footer {
+    margin-top: 20px;
+    font-size: 12px;
+    color: #666;
+}
+
+.agree {
+    margin-top: 0px;
+}
+
+.el-button {
+    width: 100%;
+}
+
+.forgot-password {
+    margin-top: -25px;
+
+}
+
+.captcha-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0px;
+}
+
+#captcha {
+    cursor: pointer;
+    user-select: none; /* 禁止选中 */
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    width: 130px; /* 增加图片宽度 */
+    height: 45px; /* 增加图片高度 */
+    margin-left: 10px; /* 图片与输入框间距 */
+}

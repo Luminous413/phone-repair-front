@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KUAI 手机维修</title>
+    <!-- 引入 ElementUI 样式 -->
+    <link rel="stylesheet" href="/static/elementui/index.css">
+    <!-- 引入 Vue 2 -->
+    <script src="/static/vue2/vue.min.js"></script>
+    <!-- 引入 ElementUI JS -->
+    <script src="/static/elementui/index.js"></script>
+    <!-- 引入 Axios -->
+    <script src="/static/axios.min.js"></script>
+    <!-- 引入自定义样式和公共样式 -->
+    <link rel="stylesheet" href="/css/repairPage.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <!-- 引入 Cookies操作第三方JS -->
+    <script src="/static/js.cookie.min.js"></script>
+</head>
+
+<body>
+<div id="app">
+    <!-- 导航栏 -->
+    <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" background-color="#545c64"
+             text-color="#fff" active-text-color="#ffd04b">
+        <el-menu-item index="1-1" @click="goToIndex">前台接待</el-menu-item>
+        <el-menu-item index="2-1" @click="goToRepair">维修管理</el-menu-item>
+        <el-menu-item index="3-1" @click="goToAccess">配件查询</el-menu-item>
+        <el-menu-item index="4-1" @click="goToUser">账号管理</el-menu-item>
+        <el-menu-item index="5-1" @click="goTosupplier">供应商管理</el-menu-item>
+        <el-menu-item index="6" @click="logout">退出登录</el-menu-item>
+    </el-menu>
+
+    <!-- 图片轮播 -->
+    <el-carousel :interval="5000" arrow="" height="450px" style="width: 100%;height: 450px;">
+        <el-carousel-item>
+            <img src="/static/img/brand1.jpg" class="carousel-image">
+        </el-carousel-item>
+        <el-carousel-item>
+            <img src="/static/img/brand2.jpg" class="carousel-image">
+        </el-carousel-item>
+        <el-carousel-item>
+            <img src="/static/img/brand3.jpg" class="carousel-image">
+        </el-carousel-item>
+        <el-carousel-item>
+            <img src="/static/img/brand4.jpg" class="carousel-image">
+        </el-carousel-item>
+    </el-carousel>
+
+    <!-- 页面内容切换 -->
+    <div>
+        <!-- 模块标题 -->
+        <div class="hengfu">
+            <span>维修管理页面</span>
+            <span style="font-size: 13px;font-weight: 500;color: rgb(164, 164, 164);">&emsp;用心服务好每一个顾客是我们的追求</span>
+        </div>
+        <!-- 表格 -->
+        <template>
+            <div class="searchInput" style="width: 280px;">
+                <el-input v-model="searchKeyword" placeholder="搜索关键词" clearable size="mini" @input="updateSearch"
+                          @keyup.enter="filterTable"></el-input>
+                <el-button class="minibutton" size="mini" type="primary" @click="filterTable"><i
+                        class="el-icon-search"></i></el-button>
+                <el-button class="minibutton" size="mini" type="success" @click="addOrder">
+                    <i class="el-icon-plus"></i> 添加订单
+                </el-button>
+            </div>
+        </template>
+        <el-table style="zoom: 85%" :data="tableData" style="width: 100%" border highlight-current-row
+                  @sort-change="handleSortChange" :loading="loading">
+            <el-table-column prop="repairId" label="维修ID" width="100" sortable></el-table-column>
+            <el-table-column prop="repairRequestId" label="订单ID" width="100"></el-table-column>
+            <el-table-column prop="phoneModel" label="手机型号" width="170"></el-table-column>
+            <el-table-column prop="repairNotes" label="维修描述" width="200"></el-table-column>
+            <el-table-column prop="statusName" label="维修状态" width="140"></el-table-column>
+            <el-table-column prop="repairPrice" label="订单价格" width="80"></el-table-column>
+            <el-table-column prop="paymentStatus" label="支付状态" width="110" sortable></el-table-column>
+            <el-table-column prop="userName" label="订单用户" width="100"></el-table-column>
+            <el-table-column prop="createdAt" label="创建时间" width="180" sortable></el-table-column>
+            <el-table-column label="操作" width="250">
+                <template slot-scope="scope">
+                    <el-button size="mini" type="info" @click="viewOrderDetails(scope.row)">详情</el-button>
+                    <el-button size="mini" type="info" @click="updateOrder(scope.row)">修改</el-button>
+                    <el-button size="mini" type="danger" @click="deleteOrder(scope.row)">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+
+
+        <!-- 分页组件 -->
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="pageNum"
+                       :page-sizes="[10, 20, 30, 40]" :page-size="pageSize"
+                       layout="total, sizes, prev, pager, next, jumper"
+                       :total="count">
+        </el-pagination>
+    </div>
+
+    <el-dialog title="添加订单" :visible.sync="addOrderDialog" width="400px">
+        <el-form :model="newOrder" label-width="100px" ref="addOrderForm">
+            <el-form-item label="订单号" :rules="{ required: true, message: '请输入订单号', trigger: 'blur' }">
+                <el-input v-model="newOrder.repairRequestId" placeholder="请输入订单号"></el-input>
+            </el-form-item>
+            <el-form-item label="维修人" :rules="{ required: true, message: '请选择维修人', trigger: 'blur' }">
+                <el-select v-model="newOrder.technicianId" placeholder="请选择维修人">
+                    <el-option v-for="technician in technicians" :key="technician.userId"
+                               :label="technician.technicianName" :value="technician.userId">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="维修描述" :rules="{ required: true, message: '请输入维修描述', trigger: 'blur' }">
+                <el-input type="textarea" v-model="newOrder.repairNotes" placeholder="请输入维修描述"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="addOrderDialog = false">取消</el-button>
+            <el-button type="primary" @click="submitNewOrder">提交</el-button>
+        </div>
+    </el-dialog>
+
+    <el-dialog title="修改订单" :visible.sync="updateOrderDialog" width="350px">
+        <el-form :model="currentOrder" label-width="120px" ref="updateOrderForm">
+            <el-form-item label="订单价格">
+                <el-input type="number" v-model="currentOrder.repairPrice" placeholder="请输入订单价格"></el-input>
+            </el-form-item>
+            <el-form-item label="支付状态">
+                <el-select v-model="currentOrder.paymentStatus" placeholder="请选择支付状态">
+                    <el-option label="待支付" value="待支付"></el-option>
+                    <el-option label="支付中" value="支付中"></el-option>
+                    <el-option label="支付完成" value="支付完成"></el-option>
+                    <el-option label="支付异常" value="支付异常"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="维修描述">
+                <el-input type="textarea" v-model="currentOrder.repairNotes" placeholder="请输入维修描述"></el-input>
+            </el-form-item>
+            <el-form-item label="维修人">
+                <!--<el-input type="number" v-model="currentOrder.technicianId" placeholder="请输入维修人ID"></el-input>-->
+                <el-select v-model="currentOrder.technicianId" placeholder="请选择维修人">
+                    <el-option v-for="technician in technicians" :key="technician.userId"
+                               :label="technician.technicianName" :value="technician.userId">
+                    </el-option>
+                </el-select>
+            </el-form-item>
+        </el-form>
+
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="updateOrderDialog = false">取消</el-button>
+            <el-button type="primary" @click="submitUpdatedOrder">保存</el-button>
+        </div>
+    </el-dialog>
+
+</div>
+<!-- 引入页面逻辑 -->
+<script src="/js/repairPage.js"></script>
+
+
+</body>
+</html>

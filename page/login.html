@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kuai手机维修|登录</title>
+    <!-- 引入 ElementUI 样式 -->
+    <link rel="stylesheet" href="/static/elementui/index.css">
+    <!-- 引入登录样式 -->
+    <link rel="stylesheet" href="/css/loginmod.css">
+    <!-- 引入 Vue 2 -->
+    <script src="/static/vue2/vue.min.js"></script>
+    <!-- 引入 ElementUI JS -->
+    <script src="/static/elementui/index.js"></script>
+    <!-- 引入 Cookies操作第三方JS -->
+    <script src="/static/js.cookie.min.js"></script>
+    <!-- 引入 axios http请求JS -->
+    <script src="/static/axios.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <!-- 背景图片 -->
+            <div class="background"></div>
+
+        <!-- 登录表单 -->
+        <div class="form-container">
+            <img src="/static/img/logo.jpg" alt="Logo" class="logo">
+            <h2>登录到您的账户</h2>
+
+            <el-form :model="loginForm" label-width="0px">
+                <el-form-item>
+                    <el-input v-model="loginForm.usernameOrEmail" placeholder="请输入用户名或邮箱"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-input type="password" v-model="loginForm.password" placeholder="请输入密码"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <div class="captcha-container">
+                        <!-- 输入验证码 -->
+                        <el-input v-model="loginForm.captchaInput" placeholder="请输入验证码" style="flex: 1;"></el-input>
+                        <!-- 验证码图片 -->
+                        <canvas id="captcha" @click="refreshCaptcha"></canvas>
+                    </div>
+                </el-form-item>
+
+                <el-form-item>
+                    <el-button type="primary" @click="handleLogin">登录</el-button>
+                    <p class="footer agree">登录即代表你同意了我们的<a href="404.html">《用户服务规范》</a></p>
+                </el-form-item>
+                <el-form-item>
+                    <p class="footer register">
+                        没有账号？<a href="register.html">立即注册</a>
+                    </p>
+                    <p class="footer forgot-password">
+                        忘记密码？<a href="/page/forget.html">找回密码</a>
+                    </p>
+                </el-form-item>
+            </el-form>
+        </div>
+    </div>
+    </div>
+    <!-- 引入公共工具 -->
+    <script src="/js/common.js"></script>
+    <!-- 引入外部 JavaScript 文件 -->
+    <script src="../js/login.js"></script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kuai手机维修|找回密码</title>
+    <!-- 引入 ElementUI 样式 -->
+    <link rel="stylesheet" href="/static/elementui/index.css">
+    <!-- 引入登录样式 -->
+    <link rel="stylesheet" href="../css/loginmod.css">
+    <!-- 引入 Vue 2 -->
+    <script src="/static/vue2/vue.min.js"></script>
+    <!-- 引入 ElementUI JS -->
+    <script src="/static/elementui/index.js"></script>
+    <!-- 引入公共工具 -->
+    <script src="../js/common.js"></script>
+    <!-- 引入 Cookies操作第三方JS -->
+    <script src="/static/js.cookie.min.js"></script>
+    <!-- 引入 axios http请求JS -->
+    <script src="/static/axios.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <!-- 背景图片 -->
+            <div class="background"></div>
+
+            <!-- 找回密码表单 -->
+            <div class="form-container">
+                <img src="/static/img/logo.jpg" alt="Logo" class="logo">
+                <h2>糟糕！快找回密码吧</h2>
+
+                <el-form :model="loginForm" label-width="0px">
+                    <el-form-item>
+                        <el-input v-model="loginForm.username" placeholder="请输入用户名！"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-input v-model="loginForm.email" placeholder="请输入邮箱！"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-input v-model="loginForm.phone" placeholder="请输入手机号(未绑定可以为空)"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-input type="password" v-model="loginForm.password" placeholder="请输入设置的新密码"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <div class="captcha-container">
+                            <!-- 输入验证码 -->
+                            <el-input v-model="loginForm.captchaInput" placeholder="请输入验证码" style="flex: 1;"></el-input>
+                            <!-- 验证码图片 -->
+                            <canvas id="captcha" @click="refreshCaptcha"></canvas>
+                        </div>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="handleForgetPassword">申请找回密码</el-button>
+                        <p class="footer agree">请你仔细阅读<a href="404.html">《密码找回和账号使用公约》</a></p>
+                    </el-form-item>
+                    <el-form-item>
+                        <p class="footer">
+                            想起来了？<a href="login.html">回到登录页</a>
+                        </p>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/forget.js"></script>
+</body>
+</html>

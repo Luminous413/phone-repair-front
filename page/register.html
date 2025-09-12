@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>kuai手机维修|注册</title>
+    <!-- 引入 ElementUI 样式 -->
+    <link rel="stylesheet" href="/static/elementui/index.css">
+    <!-- 引入注册样式 -->
+    <link rel="stylesheet" href="../css/loginmod.css">
+    <!-- 引入 Vue 2 -->
+    <script src="/static/vue2/vue.min.js"></script>
+    <!-- 引入 ElementUI JS -->
+    <script src="/static/elementui/index.js"></script>
+    <!-- 引入公共工具 -->
+    <script src="../js/common.js"></script>
+    <!-- 引入 Cookies操作第三方JS -->
+    <script src="/static/js.cookie.min.js"></script>
+    <!-- 引入 axios http请求JS -->
+    <script src="/static/axios.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <!-- 背景图片 -->
+            <div class="background"></div>
+
+            <!-- 注册表单 -->
+            <div class="form-container">
+                <img src="/static/img/logo.jpg" alt="Logo" class="logo">
+                <h2>注册账户</h2>
+
+                <el-form :model="registerForm" label-width="0px">
+                    <el-form-item>
+                        <el-input v-model="registerForm.username" placeholder="请输入用户名"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-input v-model="registerForm.email" placeholder="请输入邮箱"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-input type="password" v-model="registerForm.password" placeholder="请输入密码"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-input type="password" v-model="registerForm.confirmPassword" placeholder="确认密码"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <div class="captcha-container">
+                            <!-- 输入验证码 -->
+                            <el-input v-model="registerForm.captchaInput" placeholder="请输入验证码" style="flex: 1;"></el-input>
+                            <!-- 验证码图片 -->
+                            <canvas id="captcha" @click="refreshCaptcha"></canvas>
+                        </div>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="handleRegister">注册</el-button>
+                        <p class="footer agree">注册即代表你同意了我们的<a href="404.html">《用户服务规范》、《用户服务隐私规范》</a></p>
+                    </el-form-item>
+                    <el-form-item>
+                        <p class="footer">
+                            已有账号？<a href="login.html">立即登录</a>
+                        </p>
+                    </el-form-item>
+                </el-form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 引入外部 JavaScript 文件 -->
+    <script src="../js/register.js"></script>
+</body>
+</html>

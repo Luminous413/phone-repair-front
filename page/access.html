@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KUAI 手机维修</title>
+    <!-- 引入 ElementUI 样式 -->
+    <link rel="stylesheet" href="/static/elementui/index.css">
+    <!-- 引入 Vue 2 -->
+    <script src="/static/vue2/vue.min.js"></script>
+    <!-- 引入 ElementUI JS -->
+    <script src="/static/elementui/index.js"></script>
+    <!-- 引入 Axios -->
+    <script src="/static/axios.min.js"></script>
+    <!-- 引入自定义样式和公共样式 -->
+    <link rel="stylesheet" href="/css/repairPage.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <!-- 引入 Cookies操作第三方JS -->
+    <script src="/static/js.cookie.min.js"></script>
+</head>
+
+<body>
+<div id="app">
+    <!-- 导航栏 -->
+    <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" background-color="#545c64"
+             text-color="#fff" active-text-color="#ffd04b">
+        <el-menu-item index="1-1" @click="goToIndex">前台接待</el-menu-item>
+        <el-menu-item index="2-1" @click="goToRepair">维修管理</el-menu-item>
+        <el-menu-item index="3-1" @click="goToAccess">配件查询</el-menu-item>
+        <el-menu-item index="4-1" @click="goToUser">账号管理</el-menu-item>
+        <el-menu-item index="5-1" @click="goTosupplier">供应商管理</el-menu-item>
+        <el-menu-item index="6" @click="logout">退出登录</el-menu-item>
+    </el-menu>
+
+    <!-- 图片轮播 -->
+    <el-carousel :interval="5000" arrow="" height="450px" style="width: 100%;height: 450px;">
+        <el-carousel-item>
+            <img src="/static/img/brand1.jpg" class="carousel-image">
+        </el-carousel-item>
+        <el-carousel-item>
+            <img src="/static/img/brand2.jpg" class="carousel-image">
+        </el-carousel-item>
+        <el-carousel-item>
+            <img src="/static/img/brand3.jpg" class="carousel-image">
+        </el-carousel-item>
+        <el-carousel-item>
+            <img src="/static/img/brand4.jpg" class="carousel-image">
+        </el-carousel-item>
+    </el-carousel>
+
+    <!-- 页面内容切换 -->
+    <div>
+        <!-- 模块标题 -->
+        <div class="hengfu">
+            <span>配件查询页面</span>
+            <span style="font-size: 13px;font-weight: 500;color: rgb(164, 164, 164);">&emsp;用心服务好每一个顾客是我们的追求</span>
+        </div>
+        <!-- 表格 -->
+        <template>
+            <div class="searchInput" style="width: 280px;">
+                <el-input v-model="searchKeyword" placeholder="搜索关键词" clearable size="mini" @input="updateSearch"
+                          @keyup.enter="filterTable"></el-input>
+                <el-button class="minibutton" size="mini" type="primary" @click="filterTable"><i
+                        class="el-icon-search"></i></el-button>
+                <el-button class="minibutton" size="mini" type="success" @click="addPart">
+                    <i class="el-icon-plus"></i> 添加配件
+                </el-button>
+            </div>
+        </template>
+        <el-table style="zoom: 90%" :data="tableData" style="width: 100%" border highlight-current-row
+                  @sort-change="handleSortChange" :loading="loading">
+            <el-table-column prop="partId" label="配件 ID" width="100" sortable></el-table-column>
+            <el-table-column prop="partName" label="配件名称" width="150"></el-table-column>
+            <el-table-column prop="partPrice" label="配件价格" width="170"></el-table-column>
+            <el-table-column prop="partDescription" label="配件描述"></el-table-column>
+            <el-table-column prop="stockQuantity" label="配件数量" width="140"></el-table-column>
+            <el-table-column prop="supplierId" label="供应商id" width="140"></el-table-column>
+            <el-table-column prop="createdAt" label="创建时间" width="180" sortable></el-table-column>
+            <el-table-column label="操作" width="250">
+                <template slot-scope="scope">
+                    <el-button size="mini" type="info" @click="viewPartDetails(scope.row)">详情</el-button>
+                    <el-button size="mini" type="primary" @click="updatePart(scope.row)">修改</el-button>
+                    <el-button size="mini" type="danger" @click="deletePart(scope.row)">删除</el-button>
+                </template>
+            </el-table-column>
+
+        </el-table>
+
+
+        <!-- 分页组件 -->
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="pageNum"
+                       :page-sizes="[10, 20, 30, 40]" :page-size="pageSize"
+                       layout="total, sizes, prev, pager, next, jumper"
+                       :total="count">
+        </el-pagination>
+
+        <el-dialog title="添加用户" :visible.sync="addPartDialog" width="400px">
+            <el-form :model="newPart" label-width="100px" ref="addUserForm">
+                <el-form-item label="配件名称" :rules="{ required: true, message: '请输入配件名称', trigger: 'blur' }">
+                    <el-input v-model="newPart.partName" placeholder="请输入配件名称"></el-input>
+                </el-form-item>
+                <el-form-item label="配件价格" :rules="{ required: true, message: '请输入配件价格', trigger: 'blur' }">
+                    <el-input type="text" v-model="newPart.partPrice" placeholder="请输入配件价格"></el-input>
+                </el-form-item>
+                <el-form-item label="配件库存" :rules="{ required: true, message: '请输入配件库存', trigger: 'blur' }">
+                    <el-input type="text" v-model="newPart.stockQuantity" placeholder="请输入配件库存"></el-input>
+                </el-form-item>
+                <el-form-item label="供应商"
+                              :rules="{ required: true, message: '请选择供应商', trigger: 'blur' }">
+                    <!--<el-input type="text" v-model="newPart.supplierId" placeholder="请输入供应商编号"></el-input>-->
+                    <el-select v-model="newPart.supplierId" placeholder="请选择供应商">
+                        <el-option v-for="supplier in suppliers" :key="supplier.supplierId"
+                                   :label="supplier.supplierName" :value="supplier.supplierId"></el-option>
+                    </el-select>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="addPartDialog = false">取消</el-button>
+                <el-button type="primary" @click="submitNewPart">提交</el-button>
+            </div>
+        </el-dialog>
+
+        <el-dialog title="修改配件" :visible.sync="updatePartDialog" width="400px">
+            <el-form :model="currentPart" label-width="120px" ref="updatePartForm">
+                <el-form-item label="配件名称">
+                    <el-input type="text" v-model="currentPart.partName"></el-input>
+                </el-form-item>
+                <el-form-item label="配件价格">
+                    <el-input type="number" v-model="currentPart.partPrice"></el-input>
+                </el-form-item>
+                <el-form-item label="配件库存">
+                    <el-input type="number" v-model="currentPart.stockQuantity"></el-input>
+                </el-form-item>
+                <el-form-item label="供应商">
+                    <!--<el-input type="number" v-model="currentPart.supplierId"></el-input>-->
+                    <el-select v-model="currentPart.supplierId" placeholder="请选择供应商">
+                        <el-option v-for="supplier in suppliers" :key="supplier.supplierId"
+                                   :label="supplier.supplierName" :value="supplier.supplierId"></el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="配件描述">
+                    <el-input type="textarea" v-model="currentPart.partDescription"></el-input>
+                </el-form-item>
+
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="updatePartDialog = false">取消</el-button>
+                <el-button type="primary" @click="submitUpdatedPart">保存</el-button>
+            </div>
+        </el-dialog>
+
+        <!--            <span>{{ activeIndex }}</span>-->
+    </div>
+
+    <!-- 引入页面逻辑 -->
+    <script src="/js/access.js"></script>
+</div>
+</body>
+
+</html>

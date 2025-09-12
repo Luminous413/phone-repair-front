@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" href="/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KUAI 手机维修 - 供应商管理</title>
+    <!-- 引入 ElementUI 样式 -->
+    <link rel="stylesheet" href="/static/elementui/index.css">
+    <!-- 引入 Vue 2 -->
+    <script src="/static/vue2/vue.min.js"></script>
+    <!-- 引入 ElementUI JS -->
+    <script src="/static/elementui/index.js"></script>
+    <!-- 引入 Axios -->
+    <script src="/static/axios.min.js"></script>
+    <!-- 引入自定义样式和公共样式 -->
+    <link rel="stylesheet" href="/css/repairPage.css">
+    <link rel="stylesheet" href="/css/common.css">
+    <!-- 引入 Cookies操作第三方JS -->
+    <script src="/static/js.cookie.min.js"></script>
+</head>
+<body>
+<div id="app">
+    <!-- 导航栏（与维修页面一致，默认选中“供应商管理”） -->
+    <el-menu :default-active="activeIndex" class="el-menu-demo" mode="horizontal" background-color="#545c64"
+             text-color="#fff" active-text-color="#ffd04b">
+        <el-menu-item index="1-1" @click="goToIndex">前台接待</el-menu-item>
+        <el-menu-item index="2-1" @click="goToRepair">维修管理</el-menu-item>
+        <el-menu-item index="3-1" @click="goToAccess">配件查询</el-menu-item>
+        <el-menu-item index="4-1" @click="goToUser">账号管理</el-menu-item>
+        <el-menu-item index="5-1" @click="goToSupplier" class="is-active">供应商管理</el-menu-item>
+        <el-menu-item index="6" @click="logout">退出登录</el-menu-item>
+    </el-menu>
+
+    <!-- 图片轮播 -->
+    <el-carousel :interval="5000" arrow="" height="450px" style="width: 100%;height: 450px;">
+        <el-carousel-item>
+            <img src="/static/img/brand1.jpg" class="carousel-image">
+        </el-carousel-item>
+        <el-carousel-item>
+            <img src="/static/img/brand2.jpg" class="carousel-image">
+        </el-carousel-item>
+        <el-carousel-item>
+            <img src="/static/img/brand3.jpg" class="carousel-image">
+        </el-carousel-item>
+        <el-carousel-item>
+            <img src="/static/img/brand4.jpg" class="carousel-image">
+        </el-carousel-item>
+    </el-carousel>
+
+    <!-- 页面内容区 -->
+    <div class="container">
+        <!-- 模块标题（保持风格统一） -->
+        <div class="hengfu">
+            <span>供应商管理页面</span>
+            <span style="font-size: 13px;font-weight: 500;color: rgb(164, 164, 164);">&emsp;高效管理供应商与配件供应数据</span>
+        </div>
+
+        <!-- 搜索栏 + 新增按钮 -->
+        <template>
+            <div class="searchInput" style="width: 380px;margin-bottom: 16px;">
+                <el-input v-model="searchKeyword" placeholder="搜索关键词（支持供应商/配件编号）" clearable size="mini"
+                          @input="updateSearch" @keyup.enter="filterTable"></el-input>
+                <el-button class="minibutton" size="mini" type="primary" @click="filterTable"><i class="el-icon-search"></i></el-button>
+                <el-button class="minibutton" size="mini" type="success" @click="addSupplier">
+                    <i class="el-icon-plus"></i> 新增供应记录
+                </el-button>
+            </div>
+        </template>
+
+        <!-- 供应商表格（展示指定字段） -->
+        <el-table style="zoom: 85%" :data="tableData" style="width: 100%" border highlight-current-row
+                  @sort-change="handleSortChange" :loading="loading">
+            <el-table-column prop="supplierManagementId" label="供应商管理编号" width="150" sortable></el-table-column>
+            <el-table-column prop="supplierName" label="供应商名称" width="180"></el-table-column>
+            <el-table-column prop="supplierId" label="供应商编号" width="150" sortable></el-table-column>
+            <el-table-column prop="partId" label="配件编号" width="150" sortable></el-table-column>
+            <el-table-column prop="partName" label="配件名称" width="200"></el-table-column>
+            <el-table-column prop="supplyQuantity" label="供应数量" width="150"></el-table-column>
+            <el-table-column prop="createdAt" label="创建时间" width="200" sortable></el-table-column>
+            <el-table-column label="操作" width="230">
+                <template slot-scope="scope">
+                    <el-button size="mini" type="info" @click="viewSupplierDetails(scope.row)">详情</el-button>
+                    <el-button size="mini" type="primary" @click="updateSupplier(scope.row)">修改</el-button>
+                    <el-button size="mini" type="danger" @click="deleteSupplier(scope.row)">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+
+        <!-- 分页组件（与维修页面逻辑一致） -->
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="pageNum"
+                       :page-sizes="[10, 20, 30, 40]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
+                       :total="count" style="margin-top: 16px;text-align: right;">
+        </el-pagination>
+    </div>
+
+    <!-- 1. 新增供应商弹窗（填写4个指定字段） -->
+    <el-dialog title="新增供应记录" :visible.sync="addSupplierDialog" width="420px">
+        <el-form :model="newSupplier" label-width="130px" ref="addSupplierForm" :rules="addSupplierRules">
+            <el-form-item label="供应商编号" prop="supplierId">
+                <el-input v-model="newSupplier.supplierId" placeholder="请输入供应商编号"></el-input>
+            </el-form-item>
+            <el-form-item label="配件编号" prop="partId">
+                <el-input v-model="newSupplier.partId" placeholder="请输入配件编号"></el-input>
+            </el-form-item>
+            <el-form-item label="供应数量" prop="supplyQuantity">
+                <el-input type="number" min="1" v-model="newSupplier.supplyQuantity" placeholder="请输入供应数量（≥1）"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="addSupplierDialog = false">取消</el-button>
+            <el-button type="primary" @click="submitNewSupplier">提交</el-button>
+        </div>
+    </el-dialog>
+
+    <!-- 2. 修改供应商弹窗（复用新增字段，默认填充当前数据） -->
+    <el-dialog title="修改供应记录" :visible.sync="updateSupplierDialog" width="420px">
+        <el-form :model="currentSupplier" label-width="130px" ref="updateSupplierForm" :rules="updateSupplierRules">
+            <el-form-item label="供应商管理编号" prop="supplierManagementId">
+                <el-input v-model="currentSupplier.supplierManagementId" disabled placeholder="管理编号不可修改"></el-input>
+            </el-form-item>
+            <el-form-item label="供应商编号" prop="supplierId">
+                <el-input v-model="currentSupplier.supplierId" placeholder="请输入供应商编号"></el-input>
+            </el-form-item>
+            <el-form-item label="配件编号" prop="partId">
+                <el-input v-model="currentSupplier.partId" placeholder="请输入配件编号"></el-input>
+            </el-form-item>
+            <el-form-item label="供应数量" prop="supplyQuantity">
+                <el-input type="number" min="1" v-model="currentSupplier.supplyQuantity" placeholder="请输入供应数量（≥1）"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="updateSupplierDialog = false">取消</el-button>
+            <el-button type="primary" @click="submitUpdatedSupplier">保存</el-button>
+        </div>
+    </el-dialog>
+</div>
+
+<!-- 引入页面逻辑JS -->
+<script src="/js/supplier.js"></script>
+</body>
+</html>
