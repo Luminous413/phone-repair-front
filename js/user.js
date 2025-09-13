@@ -265,7 +265,7 @@ new Vue({
           userPwd:this.newUser.userPwd,
           userPhone:this.newUser.userPhone,
         };
-        axios.post('http://127.0.0.1:8081/yjx/user/createUser', newUser)
+        axios.post('http://127.0.0.1:8081/yjx/user/createNewUser', newUser)
             .then((response) => {
               if (response.data.code === 200) {
                 this.$message.success('用户添加成功！');
