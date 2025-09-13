@@ -168,7 +168,7 @@ new Vue({
           return;
         }
 
-        axios.post('http://127.0.0.1:8081/user/updateUser', this.currentUser, {
+        axios.post('http://127.0.0.1:8081/yjx/user/updateUser', this.currentUser, {
           headers: {
             'Content-Type': 'application/json',
           },
@@ -199,10 +199,14 @@ new Vue({
         )
         .then(() => {
           // 调用后端删除接口
-          axios.delete(`http://127.0.0.1:8081/user/delete/${user.userId}`)
-            .then(() => {
-              this.tableData = this.tableData.filter(o => o.userId !== user.userId);
-              this.$message.success('订单删除成功！');
+          axios.delete(`http://127.0.0.1:8081/yjx/user/delete/${user.userId}`)
+            .then((response) => {
+              if (response.data.code === 200) {
+                this.tableData = this.tableData.filter(o => o.userId !== user.userId);
+                this.$message.success('订单删除成功！');
+              } else {
+                this.$message.error(`订单删除失败：${response.data.message}`);
+              }
             })
             .catch(() => {
               this.$message.error('删除订单失败，请稍后再试。');
@@ -261,15 +265,19 @@ new Vue({
           userPwd:this.newUser.userPwd,
           userPhone:this.newUser.userPhone,
         };
-        axios.post('http://127.0.0.1:8081/user/createUser', newUser)
-            .then(() => {
-              this.$message.success('用户添加成功！');
-              this.fetchTableData(); // 刷新表格数据
-              this.addUserDialog = false; // 关闭弹窗
+        axios.post('http://127.0.0.1:8081/yjx/user/createUser', newUser)
+            .then((response) => {
+              if (response.data.code === 200) {
+                this.$message.success('用户添加成功！');
+                this.fetchTableData(); // 刷新表格数据
+                this.addUserDialog = false; // 关闭弹窗
+              } else {
+                this.$message.error(`用户添加失败：${response.data.message}`);
+              }
             })
             .catch((error) => {
-              console.error('添加订单失败:', error);
-              this.$message.error('添加订单失败，请稍后重试。');
+              console.error('添加用户失败:', error);
+              this.$message.error('添加用户失败，请稍后重试。');
             });
       },
       // 跳转的方法
