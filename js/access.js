@@ -11,7 +11,7 @@ new Vue({
       pageNum: 1,            // 当前页码
       pageSize: 10,          // 每页显示条数
       sortField: 'partId', // 排序字段
-      sortPart: 'asc',     // 排序顺序
+      sortOrder: 'asc',     // 排序顺序
       count: 0,              // 总记录数
       addPartDialog: false, // 是否显示添加配件的弹窗
       updatePartDialog: false, // 是否显示修改配件的弹窗
@@ -70,7 +70,7 @@ new Vue({
         pageNum: this.pageNum,
         pageSize: this.pageSize,
         sortField: this.sortField,
-        sortPart: this.sortPart,
+        sortOrder: this.sortOrder,
       });
 
       // 使用 Axios 发送请求到后端
@@ -82,7 +82,7 @@ new Vue({
           pageNum: this.pageNum,
           pageSize: this.pageSize,
           sortField: this.sortField,
-          sortPart: this.sortPart,
+          sortOrder: this.sortOrder,
         }
       })
       .then(response => {
@@ -112,7 +112,7 @@ new Vue({
     handleSortChange({ prop, part }) {
       // 传递排序参数到后端
       this.sortField = prop;
-      this.sortPart = part === 'ascending' ? 'asc' : 'desc';
+      this.sortOrder = part === 'ascending' ? 'asc' : 'desc';
       this.fetchTableData();
     },
     //详情展示

@@ -11,7 +11,7 @@ new Vue({
         pageNum: 1,            // 当前页码
         pageSize: 10,          // 每页显示条数
         sortField: 'created_at', // 排序字段
-        sortPart: 'desc',     // 排序顺序
+        sortOrder: 'desc',     // 排序顺序
         count: 0,              // 总记录数
         roles: [], // 新增：存储所有角色（ID + 名称）
         addUserDialog: false, // 是否显示添加用户的弹窗
@@ -53,7 +53,7 @@ new Vue({
           pageNum: this.pageNum,
           pageSize: this.pageSize,
           sortField: this.sortField,
-          sortPart: this.sortPart,
+          sortOrder: this.sortOrder,
         });
 
         // 使用 Axios 发送请求到后端
@@ -65,7 +65,7 @@ new Vue({
             pageNum: this.pageNum,
             pageSize: this.pageSize,
             sortField: this.sortField,
-            sortPart: this.sortPart,
+            sortOrder: this.sortOrder,
           }
         }).then(response => {
               console.log('后端返回的数据:', response.data);
@@ -124,7 +124,7 @@ new Vue({
       handleSortChange({ prop, user }) {
         // 传递排序参数到后端
         this.sortField = prop;
-        this.sortPart = user === 'ascending' ? 'asc' : 'desc';
+        this.sortOrder = user === 'ascending' ? 'asc' : 'desc';
         this.fetchTableData();
       },
 
