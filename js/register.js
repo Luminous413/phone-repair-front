@@ -84,11 +84,11 @@ new Vue({
           this.$message.success("注册成功！");
           window.location.href = '/page/login.html'; // 注册成功后跳转到登录页面
         } else {
-          this.$message.error("注册失败：" + data.message);
+          this.$message.error("注册失败：" + data.msg);
         }
       } catch (error) {
         console.error("登录请求失败：", error);
-        this.$message.error("注册失败，请稍后再试" + error.message);
+        this.$message.error("注册失败，请稍后再试" + error.msg);
       }
     },
     // 刷新验证码
